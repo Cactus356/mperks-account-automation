@@ -63,7 +63,7 @@ for index, (myMperksEmail, myMperksPassword) in enumerate(credentials):  # Runs 
 			input("If you have successfully entered the email and are now at the password screen, press <ENTER> to continue.")
 		except:  # No error message detected
 			pass  # Continue script as normal
-		#input("\nDEBUG PAUSE, PRESS ANY KEY TO CONTINUE\n")  # Enable if error after entering email.
+		
 		# Find password input field using XPath, enter the password, and click submit
 		password_field = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="credentials.passcode"]')))
 		password_field.send_keys(myMperksPassword)
