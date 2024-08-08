@@ -31,6 +31,13 @@ Current GC promo: Earn 7,500 points for every $50 you spend on select Gift Cards
 ```
 
 ## How does it work?
+You need the undetected_chromedriver installed - https://github.com/ultrafunkamsterdam/undetected-chromedriver <br />
+And Selenium - https://www.selenium.dev/documentation/webdriver/getting_started/
+```
+pip install undetected-chromedriver
+pip install selenium
+```
+
 Fill credentials.txt with your logins. Run get_cookies.py. Run account_checker.py. Read output.log.
 
 This reads the logins from the credentials file, logs into mPerks, and saves each accounts cookie into cookies.txt. Why do it this way? Getting logged in was the hardest part of all this for me. New devices/IPs will prompt for 2FA, and you can also get rate limited (At least rate limiting is my best guess) and they'll throw errors at you while logging in. I decided to spearate the more complicated login process to produce a cookie file that could then be used to reliably and repeatedly log into the accounts to get the information described above. Basically you just have to push through whatever mPerks throws at you for all your accounts the one time to get the cookies, then the actual checking should run without fail after that.
