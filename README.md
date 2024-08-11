@@ -2,8 +2,14 @@
 # Meijer mPerks Account Automation
 Uses given credentials to check your mPerks account(s) and log coupons, points, and available gift card offers
 
-## What does this do?
-It will log into your mPerks account and log the following: Total mPerks points, unused rewards and expiration date (Like save $5 on your next purchase), and any gift card promos that are available on your account (Like earn 5,000 points for every $50 spend on select gift cards)
+## Features:  
+After logging into the account, can log and perform actions like:
+- Total mPerks points
+- Unused rewards + expiration date (ie save $5 on your total purchase. Valid thru x/x/xx)
+- Unused earn tasks (ie earn 5,000 points for every $50 spent on select gift cards. Through x/x/xx)
+- (IN PROGRESS) Points redeemer - Redeems the largest available reward for cash off next purchase until you have no points left (ie 75k points into $50, $20, and $5 off your next purchase)
+- (IN PROGRESS) Coupon clipper - Clip coupons based off either a pre-defined search term, or user searchable
+- (PLANNED) - Multi-threading to allow faster checking
 
 Here is an example output.txt:
 ```
@@ -38,9 +44,9 @@ pip install undetected-chromedriver
 pip install selenium
 ```
 
-Fill credentials.txt with your logins. Run get_cookies.py. Run account_checker.py. Read output.log.
+Fill credentials.txt with your logins. Run main.py and follow the prompts. Read output.txt for account information.
 
-This reads the logins from the credentials file, logs into mPerks, and saves each accounts cookie into cookies.txt. Why do it this way? Getting logged in was the hardest part of all this for me. New devices/IPs will prompt for 2FA, and you can also get rate limited (At least rate limiting is my best guess) and they'll throw errors at you while logging in. I decided to spearate the more complicated login process to produce a cookie file that could then be used to reliably and repeatedly log into the accounts to get the information described above. Basically you just have to push through whatever mPerks throws at you for all your accounts the one time to get the cookies, then the actual checking should run without fail as long as the cookies are still valid.
+This reads the logins from the credentials file, logs into mPerks, and saves each accounts cookie into cookies.txt, then uses those cookies to do the remaining account actions. Why do it this way? Getting logged in was the hardest part of all this for me. New devices/IPs will prompt for 2FA, and you can also get rate limited (At least rate limiting is my best guess) and they'll throw errors at you while logging in. I decided to spearate the more complicated login process to produce a cookie file that could then be used to reliably and repeatedly log into the accounts to get the information described above. Basically you just have to push through whatever mPerks throws at you at the same time to get the cookies, then the actual checking should run without needing to babysit it, as long as the cookies are still valid.
 
 ## What's the point of this?
 Some users have multiple mPerks accounts to take advantage of promo offers more than once, often to farm credit card points. Keeping track of what accounts have used gift card offers, how many points they have, and if the points have been redeemed for coupons can get confusing. Instead of manually checking everything on all accounts, this will just do it for you and print a report of everything at the end.
