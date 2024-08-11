@@ -1,11 +1,11 @@
 
-# Meijer mPerks Account Checker
+# Meijer mPerks Account Automation
 Uses given credentials to check your mPerks account(s) and log coupons, points, and available gift card offers
 
 ## What does this do?
 It will log into your mPerks account and log the following: Total mPerks points, unused rewards and expiration date (Like save $5 on your next purchase), and any gift card promos that are available on your account (Like earn 5,000 points for every $50 spend on select gift cards)
 
-Here is an example output.log:
+Here is an example output.txt:
 ```
 Account: email1@website.com
 Unused reward found: Save $1 on your total purchase. Valid thru 9/13/24.
