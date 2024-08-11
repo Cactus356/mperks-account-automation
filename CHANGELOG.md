@@ -1,6 +1,6 @@
 # Changelog  
 
-## v2.0 (TBD)
+## v2.0 (8/11/24)
 - Combines get_cookies and account_checker into one script
 - Menu prompts for module selection, including get cookies, account checking, and instructions
 - Account selection for both modules can now be done in the console instead of having to edit the credentials.txt file to exclude accounts
