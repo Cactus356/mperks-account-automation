@@ -1,13 +1,13 @@
 
 # Meijer mPerks Account Automation
-Uses given credentials to check your mPerks account(s) and log coupons, points, and available gift card offers
+Uses given credentials of one or more mPerks accounts to check log coupons, points, and available gift card offers. Will also redeem points for $X off next trip rewards. 
 
 ## Features:  
 After logging into the account, can log and perform actions like:
 - Total mPerks points
 - Unused rewards + expiration date (ie save $5 on your total purchase. Valid thru x/x/xx)
 - Unused earn tasks (ie earn 5,000 points for every $50 spent on select gift cards. Through x/x/xx)
-- (IN PROGRESS) Points redeemer - Redeems the largest available reward for cash off next purchase until you have no points left (ie 75k points into $50, $20, and $5 off your next purchase)
+- Points redeemer - Redeems the largest available reward for cash off next purchase until you have no points left (ie 75k points into $50, $20, and $5 off your next purchase)
 - (IN PROGRESS) Coupon clipper - Clip coupons based off either a pre-defined search term, or user searchable
 - (PLANNED) - Multi-threading to allow faster checking
 
@@ -37,6 +37,7 @@ Current GC promo: Earn 7,500 points for every $50 you spend on select Gift Cards
 ```
 
 ## How does it work?
+Obviously uses Python
 You need the undetected_chromedriver installed - https://github.com/ultrafunkamsterdam/undetected-chromedriver <br />
 And Selenium - https://www.selenium.dev/documentation/webdriver/getting_started/
 ```
