@@ -1,4 +1,7 @@
 # Changelog  
+## v2.1 (8/12/24)
+- Added the points redeemer, which will redeem mPerks points for the highest $X off your next purchase available, repeating until all points are used
+- Logging now runs within the 'for' loop for each module instead of opening once at the start and closing once at the end. This should lead to more reliable logging.
 
 ## v2.0 (8/11/24)
 - Combines get_cookies and account_checker into one script
