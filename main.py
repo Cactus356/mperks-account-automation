@@ -1,3 +1,4 @@
+#v2.1 8/12/24
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import undetected_chromedriver as uc
@@ -7,10 +8,6 @@ from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
 import time, logging
 #logging.basicConfig(level=10)  # Enable to if there's issues so you can see what's wrong and where
-
-log_file = open("output.txt", "a")
-log_file.write("*********************************\nCurrent date: " + datetime.now().strftime('%Y-%m-%d %H:%M:%S') \
-	 + "\n*********************************\n\n")
 
 def read_credentials(file_path):  # Function to read credentials from a file
 	credentials = []
@@ -76,16 +73,19 @@ def get_account_selection(credentials):
 				if all(0 <= idx < total_accounts for idx in selected_indices):  # Check for valid indices
 					return selected_indices
 				else:
-					print(f"Please enter valid account numbers between 1 and {total_accounts}.")
+					print(f"Please enter valid account numbers between 1 and {total_accounts}.\n")
 			except ValueError:
-				print("Invalid input. Please enter numbers only.")
+				print("Invalid input. Please enter numbers only.\n")
 		else:
-			print("Invalid choice. Defaulting to check all accounts.")
+			print("Invalid choice. Defaulting to check all accounts.\n")
 			return list(range(total_accounts))
 
 def get_cookies(credentials, selected_accounts):
-	for index in selected_accounts:  # Runs for all selected accounts
-		myMperksEmail, myMperksPassword = credentials[index]
+	total_accounts = len(selected_accounts)
+	for index, account_index in enumerate(selected_accounts):  # Runs for all selected accounts
+		date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+		log_file = open("output.txt", "a")
+		myMperksEmail, myMperksPassword = credentials[account_index]
 		driver = None  # Initial driver state
 		try:
 			driver = initialize_driver()
@@ -140,26 +140,32 @@ def get_cookies(credentials, selected_accounts):
 			WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@class="user-info__points"]')))
 			save_cookies(driver, myMperksEmail)  # Save cookies after successful login
 			print(f"Your cookie has been saved for {myMperksEmail}\n")
-
+			log_file.write(f"Cookie saved for {myMperksEmail} at {date_time}\n")
 		except Exception as e:  # Issue checking the acount. Prints error to console.
 			print(f"An error occurred for {myMperksEmail}: {e}\n")
+			log_file.write(f"Error saving cookie for {myMperksEmail} at {date_time}\n")
 		finally:
 			if driver:
 				driver.quit()  # Ensures broswer gets closed
-			if index == len(selected_accounts) - 1:
-				print("Done processing all accounts. Cookies.txt should have an entry for every account in credentials.txt.\n")
+			if index == total_accounts - 1:
+				print("Done getting cookies for the selected accounts. Cookies saved to cookies.txt")
+				log_file.write("\n\n")
 			else:
 				print("Waiting 20 seconds before logging into the next account.\n")
 				time.sleep(20)
+		log_file.close()
 
 def check_account_status(credentials, selected_accounts):
-	for index in selected_accounts:
-		myMperksEmail, myMperksPassword = credentials[index]
+	total_accounts = len(selected_accounts)
+	for index, account_index in enumerate(selected_accounts):  # Runs for all selected accounts
+		date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+		log_file = open("output.txt", "a")
+		myMperksEmail, myMperksPassword = credentials[account_index]
 		driver = None
 		try:
 			driver = initialize_driver()
 
-			log_file.write("Account: " + str(myMperksEmail) + "\n")
+			log_file.write(f"Checking account {myMperksEmail} at {date_time} \n")
 
 			# Load Meijer page, wait, inject cookie, reload page
 			driver.get('https://www.meijer.com/shopping/mPerks.html')
@@ -175,7 +181,7 @@ def check_account_status(credentials, selected_accounts):
 			# Show amount of unused redeemed rewards
 			mperks_rewards = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="rewards-tab-tab"]'))).text
 			if mperks_rewards.split('(')[-1].split(')')[0] == "0":  # Checks tab name to total pending rewards
-				log_file.write("There are no rewards waiting to be used\n")
+				log_file.write(f"There are no rewards waiting to be used.\n")
 				time.sleep(2)
 			else:  # If tab name is anything else like "1", "3", etc, get the value of every reward along with expiry date
 				mperks_rewards_tab = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="rewards-tab-tab"]')))
@@ -195,7 +201,7 @@ def check_account_status(credentials, selected_accounts):
 						time.sleep(1)
 					except Exception as e:
 						print(f"An error occurred while processing a rewards class:\n\n{e}\n")
-						log_file.write("An error occurred while processing a rewards class")
+						log_file.write("An error occurred while processing a rewards class.\n")
 			# Check for GC promo available
 			mperks_earn_tab = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="earn-tab-tab"]')))
 			mperks_earn_tab.click()  # Clicks on the "earn" tab found above
@@ -213,26 +219,119 @@ def check_account_status(credentials, selected_accounts):
 			log_file.write("Total mPerks points: " + str(mperks_points_num) + "\n" + str(gc_promo_result) + "\n\n")
 		except Exception as e:  # Issue checking the acount
 			print(f"An error occurred for {myMperksEmail}: {e}\n")
+			log_file.write("An error occurred checking {myMperksEmail}\n")
 		finally:
+			if index == total_accounts - 1:
+				print(f"Finished checking {myMperksEmail}.\n")
+				print("Done checking the selected accounts. Results saved to output.txt.\n")
+				log_file.write("\n\n")
+			else:
+				print(f"Finished checking {myMperksEmail}. Waiting 15 seconds before checking the next account.")
+				time.sleep(15)
 			if driver:
 				driver.quit()  # Ensures broswer gets closed
-			#if index == len(selected_accounts) - 1:
-			#	print("Done processing all accounts.\n\n\n")
-			print(f"Finished checking {myMperksEmail}. Waiting 15 seconds before checking the next account.")
-			time.sleep(15)
-	print("Done checking all accounts, returning to main menu.\n")
-	log_file.write("\n\n")
+		log_file.close()
+
+def redeem_points(credentials, selected_accounts):
+	total_accounts = len(selected_accounts)
+	for index, account_index in enumerate(selected_accounts):  # Runs for all selected accounts
+		date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+		log_file = open("output.txt", "a")
+		myMperksEmail, myMperksPassword = credentials[account_index]
+		driver = None
+		try:
+			driver = initialize_driver()
+
+			log_file.write(f"Trying to redeem for account {myMperksEmail} at {date_time} \n")
+
+			# Load Meijer page, wait, inject cookie, reload page
+			driver.get('https://www.meijer.com/shopping/mPerks.html')
+			load_cookies(driver, myMperksEmail)
+			driver.get('https://www.meijer.com/shopping/mPerks.html')
+			time.sleep(2)
+
+			# Grab total MPerks Points
+			mperks_points = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@class="user-info__points"]'))).text
+			mperks_points_num = int(mperks_points.split()[0])  # Gets only the first section which should be numbers only
+			time.sleep(2)
+
+			# Make sure the redeem tab is selected
+			mperks_redeem_tab = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="redeem-tab-tab"]')))
+			mperks_redeem_tab.click()
+
+			while True:  # Find all reward elements, check for cash rewards that can be redeemed, and redeem
+				all_rewards = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.mperks-redeem-tile')))
+				redeemable_rewards = []
+				for reward in all_rewards:  # Check all rewards
+					price_element = reward.find_element(By.CSS_SELECTOR, '[data-testid="ads-price"]')  # Get the price text
+					price_text = price_element.text.strip()
+					if "Save $" in price_text and "your total purchase" in reward.text:  # Only consider cash rewards
+						price_value = int(price_text.replace("Save $", "").strip()) * 1000  # Get $ amount and convert to points
+						button = reward.find_element(By.CSS_SELECTOR, '[data-testid="ads-button"]')  # Check if redeem is enabled
+						if button.is_enabled() and mperks_points_num >= price_value:
+							redeemable_rewards.append((reward, price_value))  # Store both the element and its cost
+
+				if not redeemable_rewards:  # Checks if there are no redeemable rewards left
+					print(f"No redeemable cash rewards for {myMperksEmail}.")
+					log_file.write("No redeemable cash rewards.\n\n")
+					break  # Exit the loop
+
+				highest_reward, highest_cost = max(redeemable_rewards, key=lambda x: x[1])  # Sort and get highest reward
+				redeem_button = highest_reward.find_element(By.CSS_SELECTOR, '[data-testid="ads-button"]')  # Button of highest cash reward
+				redeem_button.click()
+				confirm_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="ads-button" and contains(text(), "Confirm")]')))
+				confirm_button.click()
+				print(f"Redeemed reward for ${highest_cost // 1000} dollars.")
+				log_file.write(f"Redeemed reward on {myMperksEmail} for ${highest_cost // 1000} dollars.\n")
+				mperks_points_num -= highest_cost  # Update mperks_points_total
+				driver.refresh()  # Refresh page to force reload of redeemable rewards. Otherwise takes some time on its own.
+
+		except Exception as e:  # Issue checking the acount
+			print(f"An error occurred redeeming points for {myMperksEmail}: {e}\n")
+			log_file.write("An error occurred redeeming points on {myMperksEmail}\n")
+		finally:
+			if index == total_accounts - 1:
+				print(f"Finished with {myMperksEmail}.\n")
+				print("Done redeeming on selected accounts, returning to main menu. Check output.txt for the results.\n")
+				log_file.write("\n\n")
+			else:
+				print(f"Finished with {myMperksEmail}. Waiting 15 seconds before checking the next account.\n")
+				time.sleep(15)
+			if driver:
+				driver.quit()  # Ensures broswer gets closed
+		log_file.close()
 
 def main():
 	credentials = read_credentials("credentials.txt")
 	while True:
-		print("\n1. Get cookies\n2. Check account stats\n8. Instructions\n9. Quit\n")
+		print("\n1. Get login cookies (required)\n2. Check account stats (points, unused rewards, unclaimed earn tasks)\n\
+3. Redeem points (will redeem ALL points on the account)\n4. All of the above\n8. Instructions\n9. Quit\n")
 		choice = input("Enter your choice: ")
 		if choice == '1':
 			selected_accounts = get_account_selection(credentials)
 			get_cookies(credentials, selected_accounts)
 		elif choice == '2':
 			selected_accounts = get_account_selection(credentials)
+			check_account_status(credentials, selected_accounts)
+		elif choice == '3':
+			print("\nThis will redeem all points on the account for $X off your next shopping trip, starting with the largest available to redeem")
+			print("Example, if you have 75k points, it will redeem $50, $20, and $5")
+			print("It will redeem for the highest reward as long as you have points until you have none left")
+			are_you_sure = input("\nPress <ENTER> to continue, press 'q' to return to the main menu: ")
+			if are_you_sure == 'q':
+				print("\nQuitting redeemer now...")
+			else:
+				selected_accounts = get_account_selection(credentials)
+				redeem_points(credentials, selected_accounts)
+		elif choice == '4':
+			print("\n1. Use all accounts for all steps\n2. Specify select accounts at each step\n")
+			all_or_some = input("Enter your choice: ")
+			if all_or_some == '1':
+				selected_accounts = list(range(len(credentials)))
+			elif all_or_some == '2':
+				selected_accounts = get_account_selection(credentials)
+			get_cookies(credentials, selected_accounts)
+			redeem_points(credentials, selected_accounts)
 			check_account_status(credentials, selected_accounts)
 		elif choice == '8':
 			print("\nPut all account logins into credentials.txt in the form of email,password")
@@ -243,7 +342,6 @@ def main():
 			print("Help document located at - 'https://github.com/Cactus356/mperks-account-automation/blob/main/HELPDOCS.md'")
 		elif choice == '9':
 			print("Quitting.")
-			log_file.close()
 			break
 		else:
 			print("Invalid choice, please enter 1, 2, 8, or 9.")
