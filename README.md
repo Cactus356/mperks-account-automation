@@ -8,8 +8,9 @@ After logging into the account, can log and perform actions like:
 - Unused rewards + expiration date (ie save $5 on your total purchase. Valid thru x/x/xx)
 - Unused earn tasks (ie earn 5,000 points for every $50 spent on select gift cards. Through x/x/xx)
 - Points redeemer - Redeems the largest available reward for cash off next purchase until you have no points left (ie 75k points into $50, $20, and $5 off your next purchase)
-- (IN PROGRESS) Coupon clipper - Clip coupons based off either a pre-defined search term, or user searchable
+- Coupon clipper - Clip coupons based off either a pre-defined search term (Gift card) or user-defined
 - (PLANNED) - Multi-threading to allow faster checking
+- (PLANNED) - Optimize the "run all" logic
 
 Here is an example output.txt:
 ```
