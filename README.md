@@ -12,33 +12,14 @@ After logging into the account, can log and perform actions like:
 - (PLANNED) - Multi-threading to allow faster checking
 - (PLANNED) - Optimize the "run all" logic
 
-Here is an example output.txt:
-```
-Account: email1@website.com
-Unused reward found: Save $1 on your total purchase. Valid thru 9/13/24.
-Unused reward found: Save $20 on your total purchase. Valid thru 9/13/24.
-Total mPerks points: 7368
-Current GC promo: No promo found
-
-Account: email2@website.com
-Unused reward found: Save $20 on your total purchase. Valid thru 9/12/24.
-Unused reward found: Save $20 on your total purchase. Valid thru 9/12/24.
-Total mPerks points: 1819
-Current GC promo: No promo found
-
-Account: email3@website.com
-There are no rewards waiting to be used
-Total mPerks points: 0
-Current GC promo: Earn 7,500 points for every $50 you spend on select Gift Cards. Through 8/10/24.
-
-Account: email4@website.com
-Unused reward found: Save $15 on your total purchase. Valid thru 9/14/24.
-Total mPerks points: 102
-Current GC promo: Earn 7,500 points for every $50 you spend on select Gift Cards. Through 8/10/24.
-```
+<details>
+  <summary>  Click to show an example output.txt</summary>
+  
+  ![img](https://i.imgur.com/3CPWK1a.png)
+</details>
 
 ## How does it work?
-Obviously uses Python
+Obviously need Python, I use python3  
 You need the undetected_chromedriver installed - https://github.com/ultrafunkamsterdam/undetected-chromedriver <br />
 And Selenium - https://www.selenium.dev/documentation/webdriver/getting_started/
 ```
