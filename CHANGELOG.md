@@ -1,4 +1,7 @@
 # Changelog  
+## v2.2 (8/13/24)
+- Added the coupon clipper, which will clip coupons based off a default coupon containing "Gift Card", or will search via input by the user
+
 ## v2.1 (8/12/24)
 - Added the points redeemer, which will redeem mPerks points for the highest $X off your next purchase available, repeating until all points are used
 - Logging now runs within the 'for' loop for each module instead of opening once at the start and closing once at the end. This should lead to more reliable logging.
