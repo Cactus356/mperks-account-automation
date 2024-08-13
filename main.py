@@ -1,4 +1,4 @@
-#v2.1 8/12/24
+#v2.2 8/13/24
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import undetected_chromedriver as uc
@@ -170,7 +170,7 @@ def check_account_status(credentials, selected_accounts):
 			# Load Meijer page, wait, inject cookie, reload page
 			driver.get('https://www.meijer.com/shopping/mPerks.html')
 			load_cookies(driver, myMperksEmail)
-			driver.get('https://www.meijer.com/shopping/mPerks.html')
+			driver.refresh()
 			time.sleep(2)
 
 			# Grab total MPerks Points
@@ -247,7 +247,7 @@ def redeem_points(credentials, selected_accounts):
 			# Load Meijer page, wait, inject cookie, reload page
 			driver.get('https://www.meijer.com/shopping/mPerks.html')
 			load_cookies(driver, myMperksEmail)
-			driver.get('https://www.meijer.com/shopping/mPerks.html')
+			driver.refresh()
 			time.sleep(2)
 
 			# Grab total MPerks Points
@@ -301,11 +301,107 @@ def redeem_points(credentials, selected_accounts):
 				driver.quit()  # Ensures broswer gets closed
 		log_file.close()
 
+def coupon_clipper(credentials, selected_accounts):
+	total_accounts = len(selected_accounts)
+	while True:  # Defining search term for coupon
+		print("\n1. Use the defult 'Gift Card' search\n2. Enter a custom coupon search\n")
+		search_choice = input("Enter your choice: ")
+		if search_choice == '1':
+			search_term = 'Gift Card'
+			break
+		elif search_choice == '2':
+			search_term = input("\nEnter your search term and press <ENTER>: ")
+			break
+		else:
+			print("\nInvalid choice")
+	print(f"\nSearching coupons for '{search_term}'\n")
+	for index, account_index in enumerate(selected_accounts):  # Runs for all selected accounts
+		date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+		log_file = open("output.txt", "a")
+		myMperksEmail, myMperksPassword = credentials[account_index]
+		driver = None
+		try:
+			driver = initialize_driver()
+
+			log_file.write(f"Trying to clip coupons for account {myMperksEmail} at {date_time} \n")
+
+			# Load Meijer page, wait, inject cookie, reload page
+			driver.get('https://www.meijer.com/shopping/mPerks.html')
+			load_cookies(driver, myMperksEmail)
+			driver.refresh()
+			time.sleep(2)
+
+			# Open the coupons tab
+			coupons_page = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@data-testid="ads-link" and text()="Coupons"]')))
+			coupons_page.click()
+			time.sleep(2)
+
+			# Use the search box
+			search_box = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//input[@class="search-filter__input search-filter__input--default"]')))
+			search_box.clear()  # Removes pre-filled text
+			search_box.send_keys(search_term)  # Fills search box with defined term
+			search_box_search = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@class="search-filter__submit"]')))
+			search_box_search.click()  # Clicks button to search
+			time.sleep(5)
+
+			# Clip the coupon
+			try:  # Finds all returned coupons for search_term
+				coupon_tiles = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//div[contains(@class, "coupon-tile__container")]')))
+				print(f"\nFound {len(coupon_tiles)} coupon(s) for '{search_term}'.")
+				log_file.write(f"Found {len(coupon_tiles)} coupon(s) for '{search_term}'\n")
+				for tile in coupon_tiles:  # Checks each tile for clip or unclip
+					clip_button = tile.find_element(By.XPATH, './/button[contains(@class, "coupon-tile__button--clip") or contains(@class, "coupon-tile__button--unclip")]')
+					aria_label = clip_button.get_attribute('aria-label').strip()
+					coupon_title = tile.find_element(By.CLASS_NAME, "coupon-tile__title-line-clamp-text").text.strip()
+					coupon_desc = description = tile.find_element(By.CLASS_NAME, "coupon-tile__desc-line-clamp-text").text.strip()
+					coupon_exp = expiration_date = tile.find_element(By.CLASS_NAME, "coupon-tile__date-line-clamp-wrapper").text.strip()
+					clipped_coupon_text = f"{coupon_title} {coupon_desc}, valid thru {coupon_exp}"
+					try:
+						if 'Clip' in aria_label:  # Click if it contains "Clip"
+							#coupon_title = tile.find_element(By.CLASS_NAME, "coupon-tile__title-line-clamp-text").text.strip()
+							#coupon_desc = description = tile.find_element(By.CLASS_NAME, "coupon-tile__desc-line-clamp-text").text.strip()
+							#coupon_exp = expiration_date = tile.find_element(By.CLASS_NAME, "coupon-tile__date-line-clamp-wrapper").text.strip()
+							#clipped_coupon_text = f"{coupon_title} {coupon_desc}, valid thru {coupon_exp}"
+							clip_button.click()
+							print(f"Coupon clipped - {clipped_coupon_text}")
+							log_file.write(f"Coupon clipped - {clipped_coupon_text}\n")
+						else:  # If doesn't say clip, it's already clipped
+							print(f"Coupon already clipped - {clipped_coupon_text}, checking next.")
+							log_file.write(f"Coupon already clipped - {clipped_coupon_text}\n")
+					except Exception as e:  # Error locating the clip/unclip buttons
+						print('Error finding clip buttons: {e}')
+				log_file.write(f"Done clipping available '{search_term}' coupons for {myMperksEmail}\n\n")
+				coupons_were_found = True  # Don't need to check for "No results" below
+			except:
+				coupons_were_found = False  # Need to check for "No results" below
+			if not coupons_were_found:
+				try:  # Look for "No results"
+					search_box_search = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@class="back-to-all-coupons__btn" and text()="No Results"]')))
+					print(f"No coupons found for '{search_term}'.")
+					log_file.write(f"No coupons found for '{search_term}'.\n")
+				except Exception as e:  # Error finding coupons
+					print(f"Error finding coupon tiles buttons: {e}")
+					log_file.write(f"An error occurred finding coupons on {myMperksEmail}\n")
+		finally:
+			if driver:
+				driver.quit()  # Ensures broswer gets closed
+			if index == total_accounts - 1:
+				print(f"Finished with {myMperksEmail}.\n")
+				print("Done clipping coupons on selected accounts, returning to main menu. Check output.txt for the results.\n")
+				log_file.write("\n\n")
+				log_file.close()  # Closes log file
+			else:
+				print(f"Finished with {myMperksEmail}. Waiting 15 seconds before checking the next account.\n")
+				log_file.close()  # Closes log file
+				time.sleep(15)
+			if log_file is open:
+				log_file.close()  # Ensures log file gets closed
+
 def main():
 	credentials = read_credentials("credentials.txt")
 	while True:
-		print("\n1. Get login cookies (required)\n2. Check account stats (points, unused rewards, unclaimed earn tasks)\n\
-3. Redeem points (will redeem ALL points on the account)\n4. All of the above\n8. Instructions\n9. Quit\n")
+		print("\n1. Get login cookies (required for 2,3, and 4)\n2. Check account stats (points, unused rewards, unclaimed \
+earn tasks)\n3. Redeem points (will redeem ALL points on the account)\n4. Coupon clipper\n5. All of the above\n8. Instructions\n9. Quit\n")
 		choice = input("Enter your choice: ")
 		if choice == '1':
 			selected_accounts = get_account_selection(credentials)
@@ -324,6 +420,9 @@ def main():
 				selected_accounts = get_account_selection(credentials)
 				redeem_points(credentials, selected_accounts)
 		elif choice == '4':
+			selected_accounts = get_account_selection(credentials)
+			coupon_clipper(credentials, selected_accounts)
+		elif choice == '5':
 			print("\n1. Use all accounts for all steps\n2. Specify select accounts at each step\n")
 			all_or_some = input("Enter your choice: ")
 			if all_or_some == '1':
@@ -331,6 +430,7 @@ def main():
 			elif all_or_some == '2':
 				selected_accounts = get_account_selection(credentials)
 			get_cookies(credentials, selected_accounts)
+			coupon_clipper(credentials, selected_accounts)
 			redeem_points(credentials, selected_accounts)
 			check_account_status(credentials, selected_accounts)
 		elif choice == '8':
