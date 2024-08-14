@@ -1,6 +1,6 @@
 
 # Meijer mPerks Account Automation
-Uses given credentials of one or more mPerks accounts to check log coupons, points, and available gift card offers. Will also redeem points for $X off next trip rewards. 
+Uses given credentials of one or more mPerks accounts to check log coupons, points, and available gift card offers. Can also redeem points for $X off next trip rewards, and can also clip coupons.
 
 ## Features:  
 After logging into the account, can log and perform actions like:
